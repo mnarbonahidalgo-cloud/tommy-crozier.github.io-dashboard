@@ -258,48 +258,9 @@ const servicioAvg = servicioRows.length ? Math.round(servicioTotal/servicioRows.
     }
   }
 });
+}
 
 // Gráfico 3 - Facturación por categoría
-
-c3 = new Chart(document.getElementById('c3'),{
-  type:'bar',
-  data:{
-    labels:['PLUS','STANDARD','SERVICIO'],
-    datasets:[{
-      label:'Facturación',
-      data:[
-        plusTotal,
-        standardTotal,
-        servicioTotal
-      ],
-      backgroundColor:[
-        '#c9a84c',
-        '#4a8fd4',
-        '#3db87a'
-      ],
-      borderRadius:8
-    }]
-  },
-  options:{
-    responsive:true,
-    maintainAspectRatio:false,
-    plugins:{
-      legend:{display:false}
-    },
-    scales:{
-      x:{
-        grid:{display:false}
-      },
-      y:{
-        beginAtZero:true,
-        ticks:{
-          callback:(value)=>'$'+value.toLocaleString('es-CL')
-        }
-      }
-    }
-  }
-});
-}
 
 
 Papa.parse(CSV_URL,{
