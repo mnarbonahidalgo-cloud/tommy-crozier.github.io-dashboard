@@ -109,6 +109,17 @@ const servicio = rows.filter(r => r.pauta === 'SERVICIO').length;
 const pctPlus = Math.round((plus / rows.length) * 100);
 const pctStandard = Math.round((standard / rows.length) * 100);
 const pctServicio = Math.round((servicio / rows.length) * 100);
+const plusRows = rows.filter(r => r.pauta === 'PLUS');
+const standardRows = rows.filter(r => r.pauta === 'STANDARD');
+const servicioRows = rows.filter(r => r.pauta === 'SERVICIO');
+
+const plusTotal = plusRows.reduce((s,r)=>s+(parseInt(r.total.replace(/[$\.]/g,''))||0),0);
+const standardTotal = standardRows.reduce((s,r)=>s+(parseInt(r.total.replace(/[$\.]/g,''))||0),0);
+const servicioTotal = servicioRows.reduce((s,r)=>s+(parseInt(r.total.replace(/[$\.]/g,''))||0),0);
+
+const plusAvg = plusRows.length ? Math.round(plusTotal/plusRows.length) : 0;
+const standardAvg = standardRows.length ? Math.round(standardTotal/standardRows.length) : 0;
+const servicioAvg = servicioRows.length ? Math.round(servicioTotal/servicioRows.length) : 0;
 
   // Marcas
   const marcaMap={};
@@ -152,10 +163,14 @@ const pctServicio = Math.round((servicio / rows.length) * 100);
 
     <div class="section-title">Precios individuales</div>
     <div class="card" style="margin-bottom:16px">
-      <div class="card-title">Distribución de precios por presupuesto</div>
-      <div class="card-sub">Ordenado de mayor a menor — rojo: alto, dorado: medio, verde: bajo</div>
-      <div class="chart-wrap" style="height:180px"><canvas id="c3" role="img" aria-label="Precios por presupuesto">Distribución de precios.</canvas></div>
-    </div>
+      <div class="card-title">Facturación por categoría</div>
+<div class="card-sub">Facturación total y ticket promedio por tipo de servicio</div>
+
+<div class="leg">
+  <span>PLUS: ${fmt(plusAvg)} prom.</span>
+  <span>STANDARD: ${fmt(standardAvg)} prom.</span>
+  <span>SERVICIO: ${fmt(servicioAvg)} prom.</span>
+</div>
 
     <div class="section-title">Detalle completo</div>
     <div class="card" style="padding:0;overflow:hidden">
@@ -237,28 +252,49 @@ const pctServicio = Math.round((servicio / rows.length) * 100);
 });
 
   // Gráfico 3 - Precios
-  const sorted=[...rows].sort((a,b)=>(parseInt(b.total.replace(/[$\.]/g,''))||0)-(parseInt(a.total.replace(/[$\.]/g,''))||0));
-  const vals=sorted.map(r=>parseInt(r.total.replace(/[$\.]/g,''))||0);
-  const maxV=Math.max(...vals);
-  c3=new Chart(document.getElementById('c3'),{
-    type:'bar',
-    data:{
-      labels:sorted.map(r=>r.numeroPpto),
-      datasets:[{
-        data:vals,
-        backgroundColor:vals.map(v=>v>=maxV*0.7?'#d45a4a':v>=maxV*0.45?'#c9a84c':'#3db87a'),
-        borderRadius:3,borderSkipped:false
-      }]
+// Gráfico 3 - Facturación por categoría
+
+c3 = new Chart(document.getElementById('c3'),{
+  type:'bar',
+  data:{
+    labels:['PLUS','STANDARD','SERVICIO'],
+    datasets:[{
+      label:'Facturación',
+      data:[
+        plusTotal,
+        standardTotal,
+        servicioTotal
+      ],
+      backgroundColor:[
+        '#c9a84c',
+        '#4a8fd4',
+        '#3db87a'
+      ],
+      borderRadius:4,
+      borderSkipped:false
+    }]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{
+      legend:{display:false}
     },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        x:{grid:{display:false},ticks:{color:tc,font:{size:9},maxRotation:45,autoSkip:false}},
-        y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}
+    scales:{
+      x:{
+        grid:{display:false},
+        ticks:{color:tc}
+      },
+      y:{
+        grid:{color:gc},
+        ticks:{
+          color:tc,
+          callback:v=>'$'+Math.round(v/1000)+'K'
+        }
       }
     }
-  });
+  }
+});
 }
 
 Papa.parse(CSV_URL,{
@@ -269,3 +305,4 @@ Papa.parse(CSV_URL,{
 </script>
 </body>
 </html>
+
