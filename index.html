@@ -263,29 +263,7 @@ const servicioAvg = servicioRows.length ? Math.round(servicioTotal/servicioRows.
 
 // Gráfico 3 - Facturación por categoría
 
-console.log("Canvas:", document.getElementById('c3'));
 
-c3 = new Chart(document.getElementById('c3'), {
-  type: 'bar',
-  data: {
-    labels: ['PLUS', 'STANDARD', 'SERVICIO'],
-    datasets: [{
-      label: 'Facturación',
-      data: [100, 200, 300]
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false
-  }
-});
-
-
-Papa.parse(CSV_URL,{
-  download:true,header:true,skipEmptyLines:true,
-  complete:(results)=>buildDashboard(results.data),
-  error:()=>{document.getElementById('dashboard-content').innerHTML='<div class="loading">Error al cargar datos. Verifica la conexión.</div>'}
-});
 </script>
 </body>
 </html> 
