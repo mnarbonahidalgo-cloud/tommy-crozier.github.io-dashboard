@@ -161,11 +161,19 @@ const servicioAvg = servicioRows.length ? Math.round(servicioTotal/servicioRows.
       </div>
     </div>
 
-    <div class="section-title">Precios individuales</div>
-    <div class="card" style="margin-bottom:16px">
-      <div class="card-title">Facturación por categoría</div>
-<div class="card-sub">Facturación total y ticket promedio por tipo de servicio</div>
+    <div class="section-title">Rentabilidad por categoría</div>
 
+<div class="card" style="margin-bottom:16px">
+  <div class="card-title">Facturación por categoría</div>
+
+  <div class="card-sub">
+    Facturación total y ticket promedio por tipo de servicio
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="c3"></canvas>
+  </div>
+</div>
 <div class="leg">
   <span>PLUS: ${fmt(plusAvg)} prom.</span>
   <span>STANDARD: ${fmt(standardAvg)} prom.</span>
@@ -299,4 +307,4 @@ Papa.parse(CSV_URL,{
 });
 </script>
 </body>
-</html>
+</html> 
