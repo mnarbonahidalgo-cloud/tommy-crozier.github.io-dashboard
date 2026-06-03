@@ -28,7 +28,7 @@ header{padding:20px 40px;display:flex;align-items:center;justify-content:space-b
 main{padding:32px 40px;max-width:1440px;margin:0 auto}
 .section-title{font-family:var(--fm);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .section-title::after{content:'';flex:1;height:1px;background:var(--border)}
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;background:var(--border);gap:1px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;background:var(--border);gap:1px}
 .kpi{background:var(--surface);padding:22px 20px;transition:background .2s}
 .kpi:hover{background:var(--surface2)}
 .kpi-label{font-family:var(--fm);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
@@ -54,6 +54,11 @@ tbody td{padding:12px 14px}
 .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-family:var(--fm);font-size:10px}
 .plus{background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
 .std{background:rgba(74,143,212,0.15);color:var(--blue);border:1px solid rgba(74,143,212,0.3)}
+.serv{
+  background:rgba(61,184,122,0.15);
+  color:#3db87a;
+  border:1px solid rgba(61,184,122,0.3);
+}
 .loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);font-family:var(--fm);font-size:13px;letter-spacing:1px}
 footer{padding:20px 40px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-top:32px}
 footer span{font-family:var(--fm);font-size:11px;color:var(--muted)}
@@ -97,8 +102,13 @@ function buildDashboard(data){
   const totals = rows.map(r=>parseInt(r.total.replace(/[$\.]/g,''))||0);
   const sum = totals.reduce((a,b)=>a+b,0);
   const avg = Math.round(sum/totals.length);
-  const plus = rows.filter(r=>r.pauta==='PLUS').length;
-  const pct = Math.round(plus/rows.length*100);
+  const plus = rows.filter(r => r.pauta === 'PLUS').length;
+const standard = rows.filter(r => r.pauta === 'STANDARD').length;
+const servicio = rows.filter(r => r.pauta === 'SERVICIO').length;
+
+const pctPlus = Math.round((plus / rows.length) * 100);
+const pctStandard = Math.round((standard / rows.length) * 100);
+const pctServicio = Math.round((servicio / rows.length) * 100);
 
   // Marcas
   const marcaMap={};
@@ -114,7 +124,11 @@ function buildDashboard(data){
       <div class="kpi"><div class="kpi-label">Facturación total</div><div class="kpi-val gold">${fmt(sum)}</div><div class="kpi-sub">Suma de ${rows.length} presupuestos</div></div>
       <div class="kpi"><div class="kpi-label">Ticket promedio</div><div class="kpi-val gold">${fmt(avg)}</div><div class="kpi-sub">Por presupuesto emitido</div></div>
       <div class="kpi"><div class="kpi-label">Total presupuestos</div><div class="kpi-val blue">${rows.length}</div><div class="kpi-sub">Registrados en Sheets</div></div>
-      <div class="kpi"><div class="kpi-label">Pauta PLUS</div><div class="kpi-val green">${pct}%</div><div class="kpi-sub">${plus} de ${rows.length} presupuestos</div></div>
+      <div class="kpi">
+  <div class="kpi-label">Servicios</div>
+  <div class="kpi-val green">${pctServicio}%</div>
+  <div class="kpi-sub">${servicio} de ${rows.length} presupuestos</div>
+</div>
     </div>
 
     <div class="section-title">Análisis de marcas y pautas</div>
@@ -125,13 +139,14 @@ function buildDashboard(data){
         <div class="chart-wrap"><canvas id="c1" role="img" aria-label="Facturación por marca">Gráfico de barras por marca.</canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Plus vs Standard</div>
+        <div class="card-title">Distribución de pautas</div>
         <div class="card-sub">Distribución de pautas emitidas</div>
         <div class="leg">
-          <span><span class="ld" style="background:#c9a84c"></span>PLUS — ${plus} (${pct}%)</span>
-          <span><span class="ld" style="background:#4a8fd4"></span>STANDARD — ${rows.length-plus} (${100-pct}%)</span>
+<span><span class="ld" style="background:#c9a84c"></span>PLUS — ${plus} (${pctPlus}%)</span>
+<span><span class="ld" style="background:#4a8fd4"></span>STANDARD — ${standard} (${pctStandard}%)</span>
+<span><span class="ld" style="background:#3db87a"></span>SERVICIO — ${servicio} (${pctServicio}%)</span>
         </div>
-        <div class="chart-wrap"><canvas id="c2" role="img" aria-label="Plus vs Standard">${plus} PLUS y ${rows.length-plus} STANDARD.</canvas></div>
+        <div class="chart-wrap"><canvas id="c2" role="img" aria-label="Distribución de pautas">${plus} PLUS, ${standard} STANDARD y ${servicio} SERVICIO..</canvas></div>
       </div>
     </div>
 
@@ -152,7 +167,17 @@ function buildDashboard(data){
               <td class="mono">${r.numeroPpto}</td>
               <td>${r.marca||'—'}</td>
               <td>${r.modelo||'—'}</td>
-              <td><span class="pill ${r.pauta==='PLUS'?'plus':'std'}">${r.pauta||'—'}</span></td>
+              <td>
+  				<span class="pill ${
+    				r.pauta==='PLUS'
+      					? 'plus'
+      					: r.pauta==='SERVICIO'
+        				? 'serv'
+        				: 'std'
+  			}">
+    			${r.pauta||'—'}
+  			</span>
+			</td>
               <td class="price-val">${r.total}</td>
               <td class="mono">${r.fecha||'—'}</td>
             </tr>`).join('')}
@@ -187,10 +212,29 @@ function buildDashboard(data){
 
   // Gráfico 2 - Donut
   c2=new Chart(document.getElementById('c2'),{
-    type:'doughnut',
-    data:{labels:['PLUS','STANDARD'],datasets:[{data:[plus,rows.length-plus],backgroundColor:['#c9a84c','#4a8fd4'],borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}
-  });
+  type:'doughnut',
+  data:{
+    labels:['PLUS','STANDARD','SERVICIO'],
+    datasets:[{
+      data:[plus,standard,servicio],
+      backgroundColor:[
+        '#c9a84c',
+        '#4a8fd4',
+        '#3db87a'
+      ],
+      borderWidth:0,
+      hoverOffset:4
+    }]
+  },
+  options:{
+    responsive:true,
+    maintainAspectRatio:false,
+    cutout:'70%',
+    plugins:{
+      legend:{display:false}
+    }
+  }
+});
 
   // Gráfico 3 - Precios
   const sorted=[...rows].sort((a,b)=>(parseInt(b.total.replace(/[$\.]/g,''))||0)-(parseInt(a.total.replace(/[$\.]/g,''))||0));
