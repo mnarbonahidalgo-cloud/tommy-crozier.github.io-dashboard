@@ -269,8 +269,7 @@ c3 = new Chart(document.getElementById('c3'),{
         '#4a8fd4',
         '#3db87a'
       ],
-      borderRadius:4,
-      borderSkipped:false
+      borderRadius:8
     }]
   },
   options:{
@@ -281,20 +280,17 @@ c3 = new Chart(document.getElementById('c3'),{
     },
     scales:{
       x:{
-        grid:{display:false},
-        ticks:{color:tc}
+        grid:{display:false}
       },
       y:{
-        grid:{color:gc},
+        beginAtZero:true,
         ticks:{
-          color:tc,
-          callback:v=>'$'+Math.round(v/1000)+'K'
+          callback:(value)=>'$'+value.toLocaleString('es-CL')
         }
       }
     }
   }
 });
-}
 
 Papa.parse(CSV_URL,{
   download:true,header:true,skipEmptyLines:true,
