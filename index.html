@@ -99,6 +99,7 @@ function fmt(n){return new Intl.NumberFormat('es-CL',{style:'currency',currency:
 
 function buildDashboard(data){
   const rows = data.filter(r=>r.numeroPpto && r.total);
+  console.log("Primera fila:", rows[0]);
   const totals = rows.map(r=>parseInt(r.total.replace(/[$\.]/g,''))||0);
   const sum = totals.reduce((a,b)=>a+b,0);
   const avg = Math.round(sum/totals.length);
