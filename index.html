@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tommy Crozier Mechanical — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d0d0b;--surface:#141412;--surface2:#1c1c19;
+  --border:rgba(255,255,255,0.07);
+  --gold:#c9a84c;--blue:#4a8fd4;--green:#3db87a;--red:#d45a4a;
+  --text:#ede9e0;--muted:#6b6860;
+  --ff:'DM Sans',sans-serif;--fd:'Bebas Neue',sans-serif;--fm:'DM Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--ff);min-height:100vh}
+header{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
+.logo{display:flex;align-items:center;gap:14px}
+.logo-mark{width:40px;height:40px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:20px;color:#000;letter-spacing:1px}
+.logo-name{font-family:var(--fd);font-size:20px;letter-spacing:3px}
+.logo-sub{font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.hbadge{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid var(--green);color:var(--green);font-family:var(--fm);font-size:11px}
+.hbadge::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+main{padding:32px 40px;max-width:1440px;margin:0 auto}
+.section-title{font-family:var(--fm);font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;background:var(--border);gap:1px}
+.kpi{background:var(--surface);padding:22px 20px;transition:background .2s}
+.kpi:hover{background:var(--surface2)}
+.kpi-label{font-family:var(--fm);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.kpi-val{font-family:var(--fd);font-size:38px;letter-spacing:1px;line-height:1;margin-bottom:6px}
+.kpi-val.gold{color:var(--gold)}.kpi-val.green{color:var(--green)}.kpi-val.blue{color:var(--blue)}
+.kpi-sub{font-size:11px;color:var(--muted);font-style:italic}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px}
+.card-title{font-family:var(--fd);font-size:18px;letter-spacing:1px;margin-bottom:3px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:16px;font-style:italic}
+.chart-wrap{position:relative;height:220px}
+.leg{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:11px;color:var(--muted);font-family:var(--fm)}
+.leg span{display:flex;align-items:center;gap:5px}
+.ld{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:0 14px 10px;text-align:left;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+tbody tr:hover{background:var(--surface2)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:12px 14px}
+.mono{font-family:var(--fm);font-size:11px;color:var(--muted)}
+.price-val{font-family:var(--fm);color:var(--gold)}
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-family:var(--fm);font-size:10px}
+.plus{background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+.std{background:rgba(74,143,212,0.15);color:var(--blue);border:1px solid rgba(74,143,212,0.3)}
+.loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);font-family:var(--fm);font-size:13px;letter-spacing:1px}
+footer{padding:20px 40px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-top:32px}
+footer span{font-family:var(--fm);font-size:11px;color:var(--muted)}
+#last-update{color:var(--green)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">TC</div>
+    <div>
+      <div class="logo-name">Tommy Crozier</div>
+      <div class="logo-sub">Mechanical Services · Presupuestos</div>
+    </div>
+  </div>
+  <div class="hbadge">En línea con Google Sheets</div>
+</header>
+
+<main>
+  <div id="dashboard-content">
+    <div class="loading">Cargando datos desde Google Sheets...</div>
+  </div>
+</main>
+
+<footer>
+  <span>Tommy Crozier Mechanical · Dashboard v3.0</span>
+  <span id="last-update">Cargando...</span>
+</footer>
+
+<script>
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_wmugHv2VewwJ0bumuiAE8l11iHriuQsk4Swv17XHQ31DNYYTyg-UUqPtEb2xTiWR4fF6zRDf7m7U/pub?output=csv';
+
+const tc='#6b6860', gc='rgba(255,255,255,0.06)';
+let c1,c2,c3;
+
+function fmt(n){return new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',minimumFractionDigits:0}).format(n)}
+
+function buildDashboard(data){
+  const rows = data.filter(r=>r.numeroPpto && r.total);
+  const totals = rows.map(r=>parseInt(r.total.replace(/[$\.]/g,''))||0);
+  const sum = totals.reduce((a,b)=>a+b,0);
+  const avg = Math.round(sum/totals.length);
+  const plus = rows.filter(r=>r.pauta==='PLUS').length;
+  const standard = rows.filter(r=>r.pauta==='STANDARD').length;
+  const servicio = rows.filter(r=>r.pauta==='SERVICIO').length;
+  const pct = Math.round(plus/rows.length*100);
+
+  // Marcas
+  const marcaMap={};
+  rows.forEach(r=>{
+    const m=r.marca||'Sin marca';
+    marcaMap[m]=(marcaMap[m]||0)+(parseInt(r.total.replace(/[$\.]/g,''))||0);
+  });
+  const marcas=Object.entries(marcaMap).sort((a,b)=>b[1]-a[1]);
+
+  const html=`
+    <div class="section-title">KPIs principales</div>
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">Facturación total</div><div class="kpi-val gold">${fmt(sum)}</div><div class="kpi-sub">Suma de ${rows.length} presupuestos</div></div>
+      <div class="kpi"><div class="kpi-label">Ticket promedio</div><div class="kpi-val gold">${fmt(avg)}</div><div class="kpi-sub">Por presupuesto emitido</div></div>
+      <div class="kpi"><div class="kpi-label">Total presupuestos</div><div class="kpi-val blue">${rows.length}</div><div class="kpi-sub">Registrados en Sheets</div></div>
+      <div class="kpi"><div class="kpi-label">Pauta PLUS</div><div class="kpi-val green">${pct}%</div><div class="kpi-sub">${plus} de ${rows.length} presupuestos</div></div>
+    </div>
+
+    <div class="section-title">Análisis de marcas y pautas</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Facturación por marca</div>
+        <div class="card-sub">Suma total presupuestada por fabricante</div>
+        <div class="chart-wrap"><canvas id="c1" role="img" aria-label="Facturación por marca">Gráfico de barras por marca.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Plus vs Standard vs Servicio</div>
+        <div class="card-sub">Distribución de pautas emitidas</div>
+        <div class="leg">
+          <span><span class="ld" style="background:#c9a84c"></span>PLUS — ${plus} (${Math.round(plus/rows.length*100)}%)</span>
+          <span><span class="ld" style="background:#4a8fd4"></span>STANDARD — ${standard} (${Math.round(standard/rows.length*100)}%)</span>
+          <span><span class="ld" style="background:#3db87a"></span>SERVICIO — ${servicio} (${Math.round(servicio/rows.length*100)}%)</span>
+        </div>
+        <div class="chart-wrap"><canvas id="c2" role="img" aria-label="Plus vs Standard vs Servicio">${plus} PLUS, ${standard} STANDARD y ${servicio} SERVICIO.</canvas></div>
+      </div>
+    </div>
+
+    <div class="section-title">Precios y marcas</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Precio promedio por pauta</div>
+        <div class="card-sub">Ticket promedio de SERVICIO, PLUS y STANDARD</div>
+        <div class="chart-wrap"><canvas id="c3" role="img" aria-label="Precio promedio por pauta">Precio promedio de cada pauta.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Marcas con mayor presupuesto</div>
+        <div class="card-sub">Facturación total acumulada por marca — Top 8</div>
+        <div class="chart-wrap"><canvas id="c4" role="img" aria-label="Marcas con mayor facturación">Ranking de marcas.</canvas></div>
+      </div>
+    </div>
+
+    <div class="section-title">Detalle completo</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table>
+        <thead><tr><th>N° PPTO</th><th>Marca</th><th>Modelo</th><th>Pauta</th><th>Total</th><th>Fecha</th></tr></thead>
+        <tbody>
+          ${rows.sort((a,b)=>(parseInt(b.total.replace(/[$\.]/g,''))||0)-(parseInt(a.total.replace(/[$\.]/g,''))||0)).map(r=>`
+            <tr>
+              <td class="mono">${r.numeroPpto}</td>
+              <td>${r.marca||'—'}</td>
+              <td>${r.modelo||'—'}</td>
+              <td><span class="pill ${r.pauta==='PLUS'?'plus':'std'}">${r.pauta||'—'}</span></td>
+              <td class="price-val">${r.total}</td>
+              <td class="mono">${r.fecha||'—'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  document.getElementById('dashboard-content').innerHTML=html;
+  document.getElementById('last-update').textContent='Última actualización: '+new Date().toLocaleString('es-CL');
+
+  // Gráfico 1 - Marcas
+  c1=new Chart(document.getElementById('c1'),{
+    type:'bar',
+    data:{
+      labels:marcas.map(m=>m[0]),
+      datasets:[{
+        data:marcas.map(m=>m[1]),
+        backgroundColor:(ctx)=>ctx.raw>=600000?'#c9a84c':ctx.raw>=400000?'rgba(201,168,76,0.6)':'rgba(201,168,76,0.3)',
+        borderRadius:3,borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:tc,font:{size:10}}},
+        y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}
+      }
+    }
+  });
+
+  // Gráfico 2 - Donut con 3 pautas
+  c2=new Chart(document.getElementById('c2'),{
+    type:'doughnut',
+    data:{labels:['PLUS','STANDARD','SERVICIO'],datasets:[{data:[plus,standard,servicio],backgroundColor:['#c9a84c','#4a8fd4','#3db87a'],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false}}}
+  });
+
+  // Gráfico 3 - Precio promedio por pauta
+  const avgPauta = (pauta) => {
+    const filtered = rows.filter(r=>r.pauta===pauta);
+    if(!filtered.length) return 0;
+    const sum = filtered.reduce((a,r)=>a+(parseInt(r.total.replace(/[$\.]/g,''))||0),0);
+    return Math.round(sum/filtered.length);
+  };
+  c3=new Chart(document.getElementById('c3'),{
+    type:'bar',
+    data:{
+      labels:['SERVICIO','PLUS','STANDARD'],
+      datasets:[{
+        data:[avgPauta('SERVICIO'),avgPauta('PLUS'),avgPauta('STANDARD')],
+        backgroundColor:['#3db87a','#c9a84c','#4a8fd4'],
+        borderRadius:4,borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',minimumFractionDigits:0}).format(ctx.raw)}}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:tc,font:{size:11,weight:'bold'}}},
+        y:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}}
+      }
+    }
+  });
+  // Gráfico 4 - Top marcas horizontal
+  const top8=marcas.slice(0,8);
+  new Chart(document.getElementById('c4'),{
+    type:'bar',
+    data:{
+      labels:top8.map(m=>m[0]),
+      datasets:[{data:top8.map(m=>m[1]),backgroundColor:'rgba(201,168,76,0.7)',borderRadius:4,borderSkipped:false}]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',minimumFractionDigits:0}).format(ctx.raw)}}},
+      scales:{
+        x:{grid:{color:gc},ticks:{color:tc,font:{size:10},callback:v=>'$'+Math.round(v/1000)+'K'}},
+        y:{grid:{display:false},ticks:{color:tc,font:{size:11,weight:'bold'}}}
+      }
+    }
+  });
+}
+
+Papa.parse(CSV_URL,{
+  download:true,header:true,skipEmptyLines:true,
+  complete:(results)=>buildDashboard(results.data),
+  error:()=>{document.getElementById('dashboard-content').innerHTML='<div class="loading">Error al cargar datos. Verifica la conexión.</div>'}
+});
+</script>
+</body>
+</html>
