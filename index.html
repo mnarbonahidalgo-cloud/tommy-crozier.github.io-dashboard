@@ -120,54 +120,23 @@ function buildDashboard(data){
     </div>
 
     <div class="section-title">Análisis de marcas y pautas</div>
-
-<div class="grid2">
-
-  <div class="card">
-    <div class="card-title">Facturación por marca</div>
-    <div class="card-sub">
-      Suma total presupuestada por fabricante
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Facturación por marca</div>
+        <div class="card-sub">Suma total presupuestada por fabricante</div>
+        <div class="chart-wrap"><canvas id="c1" role="img" aria-label="Facturación por marca">Gráfico de barras por marca.</canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Plus vs Standard vs Servicio</div>
+        <div class="card-sub">Distribución de pautas emitidas</div>
+        <div class="leg">
+          <span><span class="ld" style="background:#c9a84c"></span>PLUS — ${plus} (${Math.round(plus/rows.length*100)}%)</span>
+          <span><span class="ld" style="background:#4a8fd4"></span>STANDARD — ${standard} (${Math.round(standard/rows.length*100)}%)</span>
+          <span><span class="ld" style="background:#3db87a"></span>SERVICIO — ${servicio} (${Math.round(servicio/rows.length*100)}%)</span>
+        </div>
+        <div class="chart-wrap"><canvas id="c2" role="img" aria-label="Plus vs Standard vs Servicio">${plus} PLUS, ${standard} STANDARD y ${servicio} SERVICIO.</canvas></div>
+      </div>
     </div>
-
-    <div class="chart-wrap">
-      <canvas id="c1" role="img" aria-label="Facturación por marca">
-        Gráfico de barras por marca.
-      </canvas>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">PLUS vs STANDARD vs SERVICIO</div>
-
-    <div class="card-sub">
-      Distribución de pautas emitidas
-    </div>
-
-    <div class="leg">
-      <span>
-        <span class="ld" style="background:#c9a84c"></span>
-        PLUS — ${plus} (${pctPlus}%)
-      </span>
-
-      <span>
-        <span class="ld" style="background:#4a8fd4"></span>
-        STANDARD — ${pctStandard ? standard : 0} (${pctStandard}%)
-      </span>
-
-      <span>
-        <span class="ld" style="background:#3db87a"></span>
-        SERVICIO — ${servicio} (${pctServicio}%)
-      </span>
-    </div>
-
-    <div class="chart-wrap">
-      <canvas id="c2" role="img" aria-label="Distribución de pautas">
-        ${plus} PLUS, ${standard} STANDARD y ${servicio} SERVICIO.
-      </canvas>
-    </div>
-  </div>
-
-</div>
 
     <div class="section-title">Precios individuales</div>
     <div class="card" style="margin-bottom:16px">
